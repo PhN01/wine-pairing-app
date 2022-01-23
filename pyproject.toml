@@ -1,0 +1,24 @@
+[tool.black]
+exclude = "env"
+line-length = 88
+target-version = ['py35', 'py36', 'py37', 'py38']
+
+[tool.isort]
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+skip = ["env"]
+use_parentheses = true
+
+[tool.coverage.run]
+command_line = "-m pytest"
+omit = [
+  "*/tests/*",
+  "*/virtualenvs/*",
+]
+
+[tool.coverage.report]
+fail_under = 90.0
+show_missing = true
+skip_empty = true
