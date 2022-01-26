@@ -53,78 +53,44 @@ def create_wine_list_layout(n_rows: int) -> dict:
             layout_dict[i] = create_wine_layout()
     return layout_dict
 
-
-def get_best_wines(
-    sentence: str,
-    ref_embeddings: np.array,
-    tokenizer: PreTrainedTokenizer,
-    model: PreTrainedModel,
-    df: pd.DataFrame,
-) -> pd.DataFrame:
-    target_embedding = embed_sentences([sentence], tokenizer, model)
-    closest = top_n_closest_items_idx(target_embedding, ref_embeddings)
-    res_df = deepcopy(df.iloc[closest[:, 0]])
-    res_df["similarity"] = closest[:, 1].round(2)
-    return res_df
+# -------------------------------------------------------------------
+# Rendering helpers
+# -------------------------------------------------------------------
 
 
-st.title("Wine recommendation engine")
-
-variety_df = load_data()
-tokenizer, model = load_model()
+def profile_value_to_md(name: str, val: int) -> str:
+    return f"{name}<br> __{val}__/5"
 
 
-def plotly_plot(df_row: pd.Series):
-    scores = {
-        "sweetness": df_row["sweetness_label"],
-        "body": df_row["body_label"],
-        "tannins": df_row["tannins_label"],
-        "acidity": df_row["acidity_label"],
-        "alcohol": df_row["alcohol_label"],
-    }
-    fig = go.Figure(
-        data=go.Scatterpolar(
-            r=list(scores.values()), theta=list(scores.keys()), fill="toself",
+def wine_falvors_to_md(wine_data: pd.Series):
+    return f"__Tastes like:__ {wine_data['flavor_0']}, {wine_data['flavor_1']} and {wine_data['flavor_2']}."
+
+
+def render_wine(wine_data: pd.Series, layout_dict: dict) -> None:
+    layout_dict[0].markdown(f"### {wine_data['name']}")
+    layout_dict[1].metric("Confidence", wine_data["similarity"])
+    for i, item in enumerate(["Sweetness", "Body", "Tannins", "Acidity", "Alcohol"]):
+        layout_dict[i + 2].markdown(
+            profile_value_to_md(item, wine_data[f"{item.lower()}_value"]),
+            unsafe_allow_html=True,
         )
-    )
-    fig.update_layout(polar=dict(radialaxis=dict(visible=True),), showlegend=False)
-    return fig
+    layout_dict[7].markdown(wine_falvors_to_md(wine_data))
+
+
+def clear_wine_list(layout_dict: dict) -> None:
+    for el in layout_dict.values():
+        el.empty()
+
+# -------------------------------------------------------------------
+# Render site
+# -------------------------------------------------------------------
 
 
 c1, c2, c3 = [st.container(), st.container(), st.container()]
 with c1:
     text = st.text_area("What are you eating?")
 with c3:
-    # wines = st.empty()
-    c31, c32, c33 = [st.container(), st.container(), st.container()]
-    with c31:
-        c31_c1, c31_c2 = st.columns([2, 8])
-        with c31_c1:
-            top1_metric = st.empty()
-        with c31_c2:
-            top1_name = st.empty()
-            top1_plot = st.empty()
-    with c32:
-        c32_c1, c32_c2 = st.columns([2, 8])
-        with c32_c1:
-            top2_metric = st.empty()
-        with c32_c2:
-            top2_name = st.empty()
-            top2_plot = st.empty()
-    with c33:
-        c33_c1, c33_c2 = st.columns([2, 8])
-        with c33_c1:
-            top3_metric = st.empty()
-        with c33_c2:
-            top3_name = st.empty()
-            top3_plot = st.empty()
-
-top_n_mapping = {
-    0: {"metric": top1_metric, "plot": top1_plot, "name": top1_name},
-    1: {"metric": top2_metric, "plot": top2_plot, "name": top2_name},
-    2: {"metric": top3_metric, "plot": top3_plot, "name": top3_name},
-}
-
+    wines_layout = create_wine_list_layout(cons.NUM_WINES)
 with c2:
     col1, col2, col3 = st.columns([3, 1, 7])
     with col1:
@@ -137,17 +103,8 @@ with c2:
                 df=variety_df,
             )
             for i in range(3):
-                top_n_mapping[i]["metric"].metric(
-                    "Confidence", df.iloc[i]["similarity"]
-                )
-                top_n_mapping[i]["name"].markdown(f"### {df.iloc[i]['name']}")
-                top_n_mapping[i]["plot"].plotly_chart(
-                    plotly_plot(df.iloc[i]), use_cotainer_width=True
-                )
-            # wines.dataframe(df)
+                render_wine(df.iloc[i], wines_layout[i])
     with col2:
         if st.button("Clear"):
             for i in range(3):
-                top_n_mapping[i]["name"].empty()
-                top_n_mapping[i]["metric"].empty()
-                top_n_mapping[i]["plot"].empty()
+                clear_wine_list(wines_layout[i])
