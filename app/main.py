@@ -1,18 +1,14 @@
 import os
-from copy import deepcopy
-from functools import partial
-from typing import Dict, List, Tuple, Union
+from typing import Tuple
 
-import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
-import torch
-from scipy import spatial
-from transformers import AutoModel, AutoTokenizer, PreTrainedModel, PreTrainedTokenizer
-from transformers.modeling_outputs import BaseModelOutputWithPooling
+from transformers.modeling_utils import PreTrainedModel
+from transformers.models.auto import AutoModel, AutoTokenizer
+from transformers.tokenization_utils import PreTrainedTokenizer
 
-import src.constants as cons
+import app.constants.constants as cons
+from app.utils.embedding_utils import get_best_wines
 
 st.set_page_config(page_title="Wine recommendations", layout="wide")
 
@@ -30,43 +26,32 @@ def load_model() -> Tuple[PreTrainedTokenizer, PreTrainedModel]:
     return tokenizer, model
 
 
-def mean_pooling(
-    model_output: BaseModelOutputWithPooling, attention_mask: torch.Tensor
-):
-    token_embeddings = model_output[
-        0
-    ]  # First element of model_output contains all token embeddings
-    input_mask_expanded = (
-        attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-    )
-    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
-        input_mask_expanded.sum(1), min=1e-9
-    )
+st.title("Wine recommendation engine")
+
+variety_df = load_data()
+tokenizer, model = load_model()
+
+# -------------------------------------------------------------------
+# Page layout
+# -------------------------------------------------------------------
 
 
-def embed_sentences(
-    sentences: List[str], tokenizer: PreTrainedTokenizer, model: PreTrainedModel
-) -> np.array:
-    encoded_sentences = tokenizer(
-        sentences, padding=True, truncation=True, return_tensors="pt"
-    )
-    with torch.no_grad():
-        model_output = model(**encoded_sentences)
-    embeddings = mean_pooling(model_output, encoded_sentences["attention_mask"])
-    return embeddings.numpy()
+def create_wine_layout():
+    layout_dict = {}
+    cols = st.columns([2, 1, 1, 1, 1, 1, 1, 2])
+    for i, col in enumerate(cols):
+        with col:
+            layout_dict[i] = st.empty()
+    return layout_dict
 
 
-def cosine_sim(x1: Union[np.array, List[float]], x2: Union[np.array, List[float]]):
-    return 1 - spatial.distance.cosine(x1, x2)
-
-
-def top_n_closest_items_idx(
-    target_embedding: np.array, ref_embeddings: np.array, top_n: int = 3
-) -> np.array:
-    func = partial(cosine_sim, x2=target_embedding)
-    sim = np.array(list(map(func, ref_embeddings)))
-    top_n_idx = sim.argsort()[-top_n:][::-1]
-    return np.column_stack((top_n_idx, sim[top_n_idx]))
+def create_wine_list_layout(n_rows: int) -> dict:
+    rows = {i: st.container() for i in range(n_rows)}
+    layout_dict = {}
+    for i, r in rows.items():
+        with r:
+            layout_dict[i] = create_wine_layout()
+    return layout_dict
 
 
 def get_best_wines(
