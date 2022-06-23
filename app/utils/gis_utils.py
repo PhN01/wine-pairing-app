@@ -50,7 +50,7 @@ def get_outer_ring_polygons(coordinates: list) -> list:
     out = []
     for i_coordinates in coordinates:
         i_coordinates = np.array(i_coordinates)
-        while not (len(i_coordinates.shape)==2 and i_coordinates.shape[-1] == 2):
+        while not (len(i_coordinates.shape) == 2 and i_coordinates.shape[-1] == 2):
             i_coordinates = np.array(i_coordinates[0])
         out.append(i_coordinates.tolist())
     return out
@@ -63,7 +63,7 @@ def get_largest_outer_ring_polygon(coordinates: list) -> list:
     largest_polygon = None
     for i_coordinates in coordinates:
         i_coordinates = np.array(i_coordinates)
-        while not (len(i_coordinates.shape)==2 and i_coordinates.shape[-1] == 2):
+        while not (len(i_coordinates.shape) == 2 and i_coordinates.shape[-1] == 2):
             i_coordinates = np.array(i_coordinates[0])
         size = get_polygon_square_area(i_coordinates)
         if largest_polygon_size < size:

@@ -1,14 +1,14 @@
-from typing import List, Union
-from functools import partial
 from copy import deepcopy
+from functools import partial
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
 import torch
 from scipy import spatial
+from transformers.modeling_outputs import BaseModelOutputWithPooling
 from transformers.modeling_utils import PreTrainedModel
 from transformers.tokenization_utils import PreTrainedTokenizer
-from transformers.modeling_outputs import BaseModelOutputWithPooling
 
 
 def mean_pooling(

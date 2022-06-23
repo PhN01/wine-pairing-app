@@ -5,6 +5,4 @@ COUNTRY_FILE = "20220615_winesearcher_winefolly_grape_regions.csv"
 
 NUM_WINES = 3
 
-COUNTRY_MAPPING = {
-    "United States of America": "USA"
-}
+COUNTRY_MAPPING = {"United States of America": "USA"}

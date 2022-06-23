@@ -1,7 +1,5 @@
-import json
 import os
 from typing import Dict, List, Tuple
-import requests
 
 import pandas as pd
 import pydeck as pdk
@@ -24,15 +22,20 @@ def load_grape_data():
     return df
 
 
-
 @st.experimental_memo
 def load_polygons():
     # with open(os.path.join(cons.DATA_PATH, cons.POLYGON_FILE), "r") as f:
     #     data = json.load(f)
     data = pd.read_json(cons.POLYGON_FILE)
     df = pd.DataFrame()
-    df["country"] = data.features.apply(lambda row: cons.COUNTRY_MAPPING.get(row["properties"]["admin"], row["properties"]["admin"]))
-    df["coordinates"] = data.features.apply(lambda row: get_largest_outer_ring_polygon(row["geometry"]["coordinates"]))
+    df["country"] = data.features.apply(
+        lambda row: cons.COUNTRY_MAPPING.get(
+            row["properties"]["admin"], row["properties"]["admin"]
+        )
+    )
+    df["coordinates"] = data.features.apply(
+        lambda row: get_largest_outer_ring_polygon(row["geometry"]["coordinates"])
+    )
     # df["coordinates"] = df.geometry.apply(lambda x: x["coordinates"])
     # df["coordinates"] = df.coordinates.apply(lambda x: [[y[1], y[0]] for y in x[0]])
     # df["lat"] = df.coordinates.apply(lambda x: [y[1] for y in x])
@@ -45,7 +48,8 @@ def load_country_bd():
     df = pd.read_csv(os.path.join(cons.DATA_PATH, cons.COUNTRY_FILE))
     country_cols = list(df.columns)[2:]
     df["country_list"] = df.apply(
-        lambda row: list(row[country_cols].loc[~row[country_cols].isnull()].index), axis=1
+        lambda row: list(row[country_cols].loc[~row[country_cols].isnull()].index),
+        axis=1,
     )
     return df
 
@@ -130,7 +134,7 @@ class App:
                         key="wine_sel",
                         options=[None] + wines_list,
                         on_change=self._update_wine_detail,
-                        format_func=lambda x: x if not x is None else "--",
+                        format_func=lambda x: x if x is not None else "--",
                     )
             if st.button("Clear outputs"):
                 self.layout["main_content"].empty()
@@ -169,14 +173,14 @@ class App:
         global country_bd_df
         global polygon_df
 
-        country_bd = country_bd_df.loc[country_bd_df.name==wine["name"]].squeeze()
+        country_bd = country_bd_df.loc[country_bd_df.name == wine["name"]].squeeze()
         countries = country_bd["country_list"]
         polygons = polygon_df.loc[polygon_df.country.isin(countries)]
         polygons["prod_share"] = polygons.country.map(country_bd)
 
         st.pydeck_chart(
             pdk.Deck(
-                map_style='mapbox://styles/mapbox/light-v9',
+                map_style="mapbox://styles/mapbox/light-v9",
                 initial_view_state=pdk.ViewState(
                     latitude=19,
                     longitude=21,
