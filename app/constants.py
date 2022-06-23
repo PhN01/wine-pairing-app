@@ -2,7 +2,6 @@ DATA_PATH = "data"
 INPUT_FILE = "wine_recommendation_input.pkl"
 POLYGON_FILE = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson"
 COUNTRY_FILE = "20220615_winesearcher_winefolly_grape_regions.csv"
-MODEL_NAME = "nreimers/albert-small-v2"
 
 NUM_WINES = 3
 

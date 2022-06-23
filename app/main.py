@@ -11,7 +11,7 @@ from transformers.modeling_utils import PreTrainedModel
 from transformers.models.auto import AutoModel, AutoTokenizer
 from transformers.tokenization_utils import PreTrainedTokenizer
 
-import app.constants.constants as cons
+from app import constants as cons
 from app.utils.embedding_utils import get_best_wines
 from app.utils.gis_utils import get_largest_outer_ring_polygon
 
