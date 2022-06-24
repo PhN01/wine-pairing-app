@@ -12,6 +12,10 @@ from app.utils.gis_utils import get_largest_outer_ring_polygon
 
 st.set_page_config(page_title="Wine recommendations", layout="wide")
 
+# ----------------------------------------------------------------------
+# Data loaders
+# ----------------------------------------------------------------------
+
 
 @st.experimental_memo
 def load_grape_data():
@@ -21,8 +25,6 @@ def load_grape_data():
 
 @st.experimental_memo
 def load_polygons():
-    # with open(os.path.join(cons.DATA_PATH, cons.POLYGON_FILE), "r") as f:
-    #     data = json.load(f)
     data = pd.read_json(cons.POLYGON_FILE)
     df = pd.DataFrame()
     df["country"] = data.features.apply(
@@ -33,10 +35,6 @@ def load_polygons():
     df["coordinates"] = data.features.apply(
         lambda row: get_largest_outer_ring_polygon(row["geometry"]["coordinates"])
     )
-    # df["coordinates"] = df.geometry.apply(lambda x: x["coordinates"])
-    # df["coordinates"] = df.coordinates.apply(lambda x: [[y[1], y[0]] for y in x[0]])
-    # df["lat"] = df.coordinates.apply(lambda x: [y[1] for y in x])
-    # df["lon"] = df.coordinates.apply(lambda x: [y[0] for y in x])
     return df
 
 
@@ -51,11 +49,9 @@ def load_country_bd():
     return df
 
 
-st.title("Wine recommendation engine")
-
-variety_df = load_grape_data()
-polygon_df = load_polygons()
-country_bd_df = load_country_bd()
+# ----------------------------------------------------------------------
+# App
+# ----------------------------------------------------------------------
 
 
 class App:
@@ -242,6 +238,15 @@ class App:
         )
 
 
-app = App()
+# ----------------------------------------------------------------------
+# Execution
+# ----------------------------------------------------------------------
 
+st.title("Wine recommendation engine")
+
+variety_df = load_grape_data()
+polygon_df = load_polygons()
+country_bd_df = load_country_bd()
+
+app = App()
 app.render_layout()
