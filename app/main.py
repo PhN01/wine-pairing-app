@@ -1,13 +1,10 @@
 import os
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
-from transformers.modeling_utils import PreTrainedModel
-from transformers.models.auto import AutoModel, AutoTokenizer
-from transformers.tokenization_utils import PreTrainedTokenizer
 
 from app import constants as cons
 from app.utils.embedding_utils import get_best_wines
@@ -54,19 +51,11 @@ def load_country_bd():
     return df
 
 
-@st.experimental_singleton
-def load_model() -> Tuple[PreTrainedTokenizer, PreTrainedModel]:
-    tokenizer = AutoTokenizer.from_pretrained(cons.MODEL_NAME)
-    model = AutoModel.from_pretrained(cons.MODEL_NAME)
-    return tokenizer, model
-
-
 st.title("Wine recommendation engine")
 
 variety_df = load_grape_data()
 polygon_df = load_polygons()
 country_bd_df = load_country_bd()
-tokenizer, model = load_model()
 
 
 class App:
@@ -121,8 +110,6 @@ class App:
                 df = get_best_wines(
                     sentence=text,
                     ref_embeddings=variety_df[cons.MODEL_NAME],
-                    tokenizer=tokenizer,
-                    model=model,
                     df=variety_df,
                 )
                 wines_list = df.name.head(3).tolist()
