@@ -135,4 +135,5 @@ dmypy.json
 .idea
 data/**
 !data/**/
+!data/data.pkl
 !.gitkeep
