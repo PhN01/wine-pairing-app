@@ -7,8 +7,7 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 from app import constants as cons
-from app.utils.embedding_utils import get_best_wines
-from app.utils.gis_utils import get_largest_outer_ring_polygon
+from app.utils import get_best_wines, get_largest_outer_ring_polygon
 
 st.set_page_config(page_title="Wine recommendations", layout="wide")
 
@@ -69,9 +68,6 @@ class App:
         layout["main_content"] = c3
 
         with layout["main_input"]:
-            # TODO: currently no option to align column contents, which
-            # results in buttons not being aligned with text
-            # streamlit team is working on it
             text, buttons = st.columns([8, 2])
             layout["input_text"] = text
             layout["input_buttons"] = buttons
@@ -101,6 +97,11 @@ class App:
         with self.layout["input_text"]:
             text = st.text_area("")
         with self.layout["input_buttons"]:
+            # TODO: currently no option to align column contents, which
+            # results in buttons not being aligned with text
+            # streamlit team is working on it
+            st.text("")
+            st.text("")
             if st.button("Find wines") or s.pressed_first_button:
                 s.pressed_first_button = True
                 df = get_best_wines(
@@ -212,7 +213,7 @@ class App:
                 st.markdown(self._flavors_to_md(wine_data))
             with self.layout["regions"]:
                 self.layout["regions"].empty()
-                st.subheader("Where this wine is grown:")
+                st.subheader("Where this wine is grown")
                 self._render_polygon_map(wine_data)
 
     @staticmethod
