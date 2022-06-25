@@ -1,10 +1,14 @@
+import os
+import pickle
 from copy import deepcopy
 from functools import partial
-from typing import List, Union
+from io import BytesIO
+from typing import Any, List, Union
 
 import numpy as np
 import pandas as pd
 import requests
+from cryptography.fernet import Fernet
 from scipy import spatial
 
 from app import constants as cons
@@ -127,3 +131,40 @@ def get_largest_outer_ring_polygon(coordinates: list) -> list:
             largest_polygon = i_coordinates.tolist()
             largest_polygon_size = size
     return largest_polygon
+
+
+# ----------------------------------------------------------------------
+# Data handling
+# ----------------------------------------------------------------------
+
+
+def get_crypt() -> Fernet:
+    return Fernet(cons.FILE_KEY)
+
+
+def read_file(file: str) -> pd.DataFrame:
+    ftype = file.split(".")[-1]
+    if ftype == "csv":
+        return pd.read_csv(file)
+    elif ftype == "pkl":
+        return pd.read_pickle(file)
+    else:
+        raise ValueError(f"Unknown file type {file}")
+
+
+def encrypt_data(data: Any) -> str:
+    fernet = get_crypt()
+    encoded = fernet.encrypt(pickle.dumps(data))
+    return encoded
+
+
+def decrypt_data(encoded: str) -> Any:
+    fernet = get_crypt()
+    decoded = fernet.decrypt(encoded)
+    dec_bytes = BytesIO(decoded)
+    return pickle.load(dec_bytes)
+
+
+def load_file_data() -> Any:
+    with open(os.path.join(cons.DATA_PATH, cons.ENCRYPTED_DATA_FILE), "rb") as f:
+        return decrypt_data(f.read())

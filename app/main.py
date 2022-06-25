@@ -1,4 +1,3 @@
-import os
 from typing import Dict, List
 
 import pandas as pd
@@ -7,7 +6,7 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 from app import constants as cons
-from app.utils import get_best_wines, get_largest_outer_ring_polygon
+from app.utils import get_best_wines, get_largest_outer_ring_polygon, load_file_data
 
 st.set_page_config(page_title="Wine recommendations", layout="wide")
 
@@ -17,9 +16,21 @@ st.set_page_config(page_title="Wine recommendations", layout="wide")
 
 
 @st.experimental_memo
-def load_grape_data():
-    df = pd.read_pickle(os.path.join(cons.DATA_PATH, cons.INPUT_FILE))
-    return df
+def load_files():
+    data = load_file_data()
+
+    # grape data
+    variety_df = data[cons.INPUT_FILE]
+
+    # grape production breakdown
+    country_bd_df = data[cons.COUNTRY_FILE]
+    country_cols = list(country_bd_df.columns)[2:]
+    country_bd_df["country_list"] = country_bd_df.apply(
+        lambda row: list(row[country_cols].loc[~row[country_cols].isnull()].index),
+        axis=1,
+    )
+
+    return variety_df, country_bd_df
 
 
 @st.experimental_memo
@@ -33,17 +44,6 @@ def load_polygons():
     )
     df["coordinates"] = data.features.apply(
         lambda row: get_largest_outer_ring_polygon(row["geometry"]["coordinates"])
-    )
-    return df
-
-
-@st.experimental_memo
-def load_country_bd():
-    df = pd.read_csv(os.path.join(cons.DATA_PATH, cons.COUNTRY_FILE))
-    country_cols = list(df.columns)[2:]
-    df["country_list"] = df.apply(
-        lambda row: list(row[country_cols].loc[~row[country_cols].isnull()].index),
-        axis=1,
     )
     return df
 
@@ -245,9 +245,8 @@ class App:
 
 st.title("Wine recommendation engine")
 
-variety_df = load_grape_data()
+variety_df, country_bd_df = load_files()
 polygon_df = load_polygons()
-country_bd_df = load_country_bd()
 
 app = App()
 app.render_layout()
