@@ -1,4 +1,4 @@
-HEROKU_APP_NAME=arcane-journey-70794
+HEROKU_APP_NAME=protected-woodland-22010
 COMMIT_ID=$(shell git rev-parse HEAD)
 
 
@@ -17,4 +17,4 @@ push-app-heroku: heroku-container-login
 release-heroku: heroku-container-login
 	heroku container:release web --app $(HEROKU_APP_NAME)
 
-.PHONY: heroku-login heroku-container-login build-app-heroku push-app-heroku deploy-frontend-heroku
+.PHONY: heroku-login heroku-container-login build-app-heroku push-app-heroku
