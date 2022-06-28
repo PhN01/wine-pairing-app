@@ -133,7 +133,8 @@ dmypy.json
 # project related
 .vscode
 .idea
-data/**
-!data/**/
-!data/data.pkl
+*/data/**
+!*/data/**/
+!*/data/data.pkl
 !.gitkeep
+app/.streamlit
