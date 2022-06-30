@@ -13,7 +13,7 @@ COUNTRY_FILE = "20220615_grape_regions.csv"
 ENCRYPTED_DATA_FILE = "data.pkl"
 
 # nlp api
-NLP_API_URL = "https://arcane-journey-70794.herokuapp.com/api/v1/embedding/embedding"
+NLP_API_URL = os.getenv("NLP_API_URL")
 API_TOKEN = os.getenv("NLP_API_TOKEN")
 MODEL_NAME = "nreimers/albert-small-v2"
 
