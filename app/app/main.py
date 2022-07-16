@@ -92,7 +92,7 @@ class App:
 
         with self.layout["header"]:
             st.markdown(
-                "We want to help you figure out, which wine works best with your meal plans. Tell us what you plant to eat:"
+                "We want to help you figure out, which wine works best with your meal plans. Tell us what you plan to eat:"
             )
         with self.layout["input_text"]:
             text = st.text_area("")
