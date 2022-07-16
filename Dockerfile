@@ -42,7 +42,7 @@ RUN mkdir -p .streamlit
 RUN chown -R app:app .streamlit
 
 # chown all the files to the app user
-RUN chown -R app:app $HOME
+RUN chown -R app:app /app
 
 # change to the app user
 # Switch to a non-root user, which is recommended by Heroku.
