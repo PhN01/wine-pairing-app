@@ -1,4 +1,4 @@
-HEROKU_APP_NAME=protected-woodland-22010
+HEROKU_APP_NAME=wine-pairing-app-42
 COMMIT_ID=$(shell git rev-parse HEAD)
 
 

@@ -243,7 +243,7 @@ class App:
 # Execution
 # ----------------------------------------------------------------------
 
-st.title("Wine recommendation engine")
+st.title("Wine pairing app")
 
 variety_df, country_bd_df = load_files()
 polygon_df = load_polygons()
