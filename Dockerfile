@@ -3,8 +3,8 @@ FROM python:3.9
 # create the app user
 RUN addgroup --system app && adduser --system --group app
 
-# expose port 8501 for app to be run on
-EXPOSE 8501
+# expose port 5401 for app to be run on
+EXPOSE 5401
 
 WORKDIR /app/
 
@@ -26,7 +26,7 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
     poetry config virtualenvs.create false
 
 # Copy poetry.lock* in case it doesn't exist in the repo
-COPY ./app/pyproject.toml ./app/poetry.lock* /app/
+COPY ./pyproject.toml ./poetry.lock* ./.env /app/
 
 # Allow installing dev dependencies to run tests
 ARG INSTALL_DEV=false
