@@ -25,6 +25,14 @@ def load_files():
     # grape production breakdown
     country_bd_df = data[cons.COUNTRY_FILE]
     country_cols = list(country_bd_df.columns)[2:]
+
+    # normalize percentage bd to 100%
+    country_bd_df[country_cols] = (
+        country_bd_df[country_cols]
+        .apply(lambda row: row / row.fillna(0).sum() * 100, axis=1)
+        .round(2)
+    )
+
     country_bd_df["country_list"] = country_bd_df.apply(
         lambda row: list(row[country_cols].loc[~row[country_cols].isnull()].index),
         axis=1,
@@ -95,7 +103,7 @@ class App:
                 "We want to help you figure out, which wine works best with your meal plans. Tell us what you plan to eat:"
             )
         with self.layout["input_text"]:
-            text = st.text_area("")
+            text = st.text_area("", key="input_text")
         with self.layout["input_buttons"]:
             # TODO: currently no option to align column contents, which
             # results in buttons not being aligned with text
@@ -103,23 +111,27 @@ class App:
             st.text("")
             st.text("")
             if st.button("Find wines") or s.pressed_first_button:
-                s.pressed_first_button = True
-                df = get_best_wines(
-                    sentence=text,
-                    ref_embeddings=variety_df[cons.MODEL_NAME],
-                    df=variety_df,
-                )
-                wines_list = df.name.head(3).tolist()
-                with self.layout["recommendations"]:
-                    st.subheader("Recommended Wines:")
-                    st.markdown(self._wines_to_md(wines_list))
-                    st.selectbox(
-                        "Select a wine to learn more...",
-                        key="wine_sel",
-                        options=[None] + wines_list,
-                        on_change=self._update_wine_detail,
-                        format_func=lambda x: x if x is not None else "--",
+                if st.session_state.input_text != "":
+                    df = get_best_wines(
+                        sentence=text,
+                        ref_embeddings=variety_df[cons.MODEL_NAME],
+                        df=variety_df,
                     )
+                    wines_list = df.name.head(3).tolist()
+                    with self.layout["recommendations"]:
+                        st.subheader("Recommended Wines:")
+                        st.markdown(self._wines_to_md(wines_list))
+                        st.selectbox(
+                            "Select a wine to learn more...",
+                            key="wine_sel",
+                            index=1,
+                            options=[None] + wines_list,
+                            on_change=self._update_wine_detail,
+                            format_func=lambda x: x if x is not None else "--",
+                        )
+                        if not s.pressed_first_button:
+                            self._update_wine_detail()
+                        s.pressed_first_button = True
             if st.button("Clear outputs"):
                 self.layout["main_content"].empty()
 
@@ -159,6 +171,9 @@ class App:
 
         country_bd = country_bd_df.loc[country_bd_df.name == wine["name"]].squeeze()
         countries = country_bd["country_list"]
+        if country_bd[countries].isna().all():
+            st.text("No geo information available for this wine.")
+            return
         polygons = polygon_df.loc[polygon_df.country.isin(countries)]
         polygons["prod_share"] = polygons.country.map(country_bd)
 
