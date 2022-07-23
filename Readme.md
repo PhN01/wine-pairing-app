@@ -8,7 +8,7 @@ On top of the wine pairings, the app allows you to display additional informatio
 The wine dataset was scraped and curated from different sources. For the food-wine pairings the a numeric representation of the provided meal description is computed and gets compared to the numerical representations of predefined food-wine pairings of each wine in the dataset. The app returns the three wines with food pairings most similar to the provided meal description. For more information see `How it works` section.
 
 ## How it works
-The main analytical task of the app is to compute the numerical representation of the text input. For this purpose, I have deployed an NLP model from `huggingface` using FastAPI (not public). The API takes the text as input and returns a vector representation (embedding) extracted from the embedding layer of the NLP model.
+The main analytical task of the app is to compute the numerical representation of the text input. For this purpose, I have deployed an NLP model from `huggingface` using FastAPI (not public). The API takes the text as input and returns a vector representation (embedding) extracted from the embedding layer of the NLP model. Access to the API is restricted using JWT authentication.
 
 To assess which wine works best with the provided food description, I compare the text embedding with the numerical representations of known, suitable food pairings for each wine using the cosine distance.
 
