@@ -3,10 +3,10 @@ from typing import Dict, List
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+from app.utils import get_best_wines, get_largest_outer_ring_polygon, load_file_data
 from streamlit.delta_generator import DeltaGenerator
 
 from app import constants as cons
-from app.utils import get_best_wines, get_largest_outer_ring_polygon, load_file_data
 
 st.set_page_config(page_title="Wine recommendations", layout="wide")
 
@@ -69,6 +69,7 @@ class App:
 
     @staticmethod
     def set_layout() -> Dict[str, DeltaGenerator]:
+        """Define page layout"""
         layout = {}
         c1, c2, c3 = [st.container(), st.container(), st.empty()]
         layout["header"] = c1
@@ -92,6 +93,7 @@ class App:
         return layout
 
     def render_layout(self) -> None:
+        """Render the entire page layout"""
         self._set_page_container_style()
 
         s = st.session_state
@@ -137,6 +139,7 @@ class App:
 
     @staticmethod
     def _wines_to_md(wine_names: List[str]) -> str:
+        """Transform a list of wine names to a markdown string"""
         res = []
         for wine in wine_names:
             res.append(f"* {wine}")
@@ -144,6 +147,9 @@ class App:
 
     @staticmethod
     def _profile_to_md(wine: pd.Series) -> str:
+        """Extract the taste profile information from a wine data
+        Series and transform data to a markdown string
+        """
         mapping = {
             "sweetness_label": "Sweetness",
             "body_label": "Body",
@@ -157,6 +163,9 @@ class App:
 
     @staticmethod
     def _flavors_to_md(wine: pd.Series) -> str:
+        """Extract the flavor information from a wine data Series
+        and transform data to a markdown string
+        """
         flavor_cols = [f"flavor_{i}" for i in range(5)]
 
         res = []
@@ -166,6 +175,9 @@ class App:
 
     @staticmethod
     def _render_polygon_map(wine: pd.Series) -> None:
+        """Renders a map with polygons indicating the main countries in which
+        a wine is being produced
+        """
         global country_bd_df
         global polygon_df
 
@@ -212,6 +224,7 @@ class App:
         )
 
     def _update_wine_detail(self):
+        """Updates the wine detail view"""
         global variety_df
         wine_name = st.session_state.wine_sel
         if wine_name is None:
@@ -233,6 +246,7 @@ class App:
 
     @staticmethod
     def _set_page_container_style() -> None:
+        """Adjusts the default streamlit container layout"""
         st.markdown(
             """
             <style>
