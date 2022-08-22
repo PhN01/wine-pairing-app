@@ -1,21 +1,13 @@
-import os
-import pickle
 from copy import deepcopy
 from functools import partial
-from io import BytesIO
-from typing import Any, Dict, List, Union
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
 import requests
-from cryptography.fernet import Fernet
 from scipy import spatial
 
 from app import constants as cons
-
-# ----------------------------------------------------------------------
-# Embeddings
-# ----------------------------------------------------------------------
 
 
 def request_embedding(sentence: str) -> List[float]:
@@ -107,115 +99,3 @@ def get_best_wines(
     res_df = deepcopy(df.iloc[closest[:, 0]])
     res_df["similarity"] = closest[:, 1].round(2)
     return res_df
-
-
-# ----------------------------------------------------------------------
-# GIS
-# ----------------------------------------------------------------------
-
-
-def get_polygon_rectangle_area(coordinates: List[float]) -> float:
-    """Fits a rectangle (exactly N/S and E/W aligned) around a polygon
-    and computes the area of the rectangle.
-
-    Args:
-        coordinates (List[float]): Polygon coordinates
-
-    Returns:
-        float: Area of rectangle around polygon
-    """
-    coordinates = np.array(coordinates)
-    lon = [co[0] for co in coordinates]
-    lat = [co[1] for co in coordinates]
-    return (np.max(lon) - np.min(lon)) * (np.max(lat) - np.min(lat))
-
-
-def get_largest_outer_ring_polygon(coordinates: list) -> List[float]:
-    """From a list of polygons, return the one with the largest outer rectangle area
-
-    Args:
-        coordinates (list): List of polygons
-
-    Returns:
-        List[float]: Largest with the largest outer rectangle
-    """
-    coordinates = np.array(coordinates)
-
-    largest_polygon_size = 0
-    largest_polygon = None
-    for i_coordinates in coordinates:
-        i_coordinates = np.array(i_coordinates)
-        while not (len(i_coordinates.shape) == 2 and i_coordinates.shape[-1] == 2):
-            i_coordinates = np.array(i_coordinates[0])
-        size = get_polygon_rectangle_area(i_coordinates)
-        if largest_polygon_size < size:
-            largest_polygon = i_coordinates.tolist()
-            largest_polygon_size = size
-    return largest_polygon
-
-
-# ----------------------------------------------------------------------
-# Data handling
-# ----------------------------------------------------------------------
-
-
-def get_crypt() -> Fernet:
-    """Get Fernet encryption engine with local key"""
-    return Fernet(cons.FILE_KEY)
-
-
-def read_file(filepath: str) -> pd.DataFrame:
-    """Helper function for reading csv and pickle files
-
-    Args:
-        filepath (str): Path of file to be read
-
-    Returns:
-        pd.DataFrame: Data loaded from file
-    """
-    ext = filepath.split(".")[-1]
-    if ext == "csv":
-        return pd.read_csv(filepath)
-    elif ext == "pkl":
-        return pd.read_pickle(filepath)
-    else:
-        raise ValueError(f"Unknown file type {filepath}")
-
-
-def encrypt_data(data: Any) -> str:
-    """Pickle and encrypt a data object
-
-    Args:
-        data (Any): Data to be encrypted
-
-    Returns:
-        str: Encrypted file string
-    """
-    fernet = get_crypt()
-    encoded = fernet.encrypt(pickle.dumps(data))
-    return encoded
-
-
-def decrypt_data(encoded: str) -> Any:
-    """Decrypt a file string
-
-    Args:
-        encoded (str): Encrypted file string
-
-    Returns:
-        Any: Decrypted data
-    """
-    fernet = get_crypt()
-    decoded = fernet.decrypt(encoded)
-    dec_bytes = BytesIO(decoded)
-    return pickle.load(dec_bytes)
-
-
-def load_file_data() -> Dict[str, Any]:
-    """Helper function to load the encrypted data used by this application
-
-    Returns:
-        Any: Dictionary mapping to decrypted data
-    """
-    with open(os.path.join(cons.DATA_PATH, cons.ENCRYPTED_DATA_FILE), "rb") as f:
-        return decrypt_data(f.read())

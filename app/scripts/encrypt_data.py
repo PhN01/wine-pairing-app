@@ -1,7 +1,7 @@
 import os
 
 import app.constants as cons
-from app.utils import encrypt_data, read_file
+from app.utils.encryption import encrypt_data, read_file
 
 if __name__ == "__main__":
     files = [
