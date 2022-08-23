@@ -16,6 +16,7 @@ ENCRYPTED_DATA_FILE = "data.pkl"
 NLP_API_URL = os.getenv("NLP_API_URL")
 API_TOKEN = os.getenv("NLP_API_TOKEN")
 MODEL_NAME = "nreimers/albert-small-v2"
+HIDDEM_DIM = 768
 
 # encryption key
 FILE_KEY = os.getenv("FILE_KEY")
