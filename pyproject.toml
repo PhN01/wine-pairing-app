@@ -53,3 +53,13 @@ omit = [
 fail_under = 90.0
 show_missing = true
 skip_empty = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "app/app/tests",
+]
+log_cli = true
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
