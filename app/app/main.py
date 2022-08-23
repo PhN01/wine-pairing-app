@@ -1,10 +1,11 @@
+import os
 from typing import Dict, List
 
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
 from app.utils.embeddings import get_best_wines
-from app.utils.encryption import load_file_data
+from app.utils.encryption import load_and_decrypt_data
 from app.utils.gis import get_largest_outer_ring_polygon
 from streamlit.delta_generator import DeltaGenerator
 
@@ -19,7 +20,7 @@ st.set_page_config(page_title="Wine recommendations", layout="wide")
 
 @st.experimental_memo
 def load_files():
-    data = load_file_data()
+    data = load_and_decrypt_data(os.path.join(cons.DATA_PATH, cons.ENCRYPTED_DATA_FILE))
 
     # grape data
     variety_df = data[cons.INPUT_FILE]

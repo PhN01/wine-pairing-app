@@ -1,7 +1,7 @@
 import os
 
 import app.constants as cons
-from app.utils.encryption import encrypt_data, read_file
+from app.utils.encryption import encrypt_data, read_file, write_encrypted_data
 
 if __name__ == "__main__":
     files = [
@@ -19,5 +19,6 @@ for f in files:
 
     encoded = encrypt_data(data)
 
-    with open(os.path.join(cons.DATA_PATH, cons.ENCRYPTED_DATA_FILE), "wb") as f:
-        f.write(encoded)
+    write_encrypted_data(
+        encoded, os.path.join(cons.DATA_PATH, cons.ENCRYPTED_DATA_FILE)
+    )

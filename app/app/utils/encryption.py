@@ -1,7 +1,6 @@
-import os
 import pickle
 from io import BytesIO
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 from cryptography.fernet import Fernet
@@ -61,11 +60,21 @@ def decrypt_data(encoded: str) -> Any:
     return pickle.load(dec_bytes)
 
 
-def load_file_data() -> Dict[str, Any]:
+def write_encrypted_data(enc: str, file_path: str) -> None:
+    """Helper function to store an encrypted data byte string
+
+    Args:
+        enc (Any): Encrypted byte string
+    """
+    with open(file_path, "wb") as f:
+        f.write(enc)
+
+
+def load_and_decrypt_data(file_path: str) -> Any:
     """Helper function to load the encrypted data used by this application
 
     Returns:
         Any: Dictionary mapping to decrypted data
     """
-    with open(os.path.join(cons.DATA_PATH, cons.ENCRYPTED_DATA_FILE), "rb") as f:
+    with open(file_path, "rb") as f:
         return decrypt_data(f.read())
