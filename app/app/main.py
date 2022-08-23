@@ -4,7 +4,7 @@ from typing import Dict, List
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
-from app.utils.embeddings import get_best_wines
+from app.utils.embedding import get_best_wines
 from app.utils.encryption import load_and_decrypt_data
 from app.utils.gis import get_largest_outer_ring_polygon
 from streamlit.delta_generator import DeltaGenerator
